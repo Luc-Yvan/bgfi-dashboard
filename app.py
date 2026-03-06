@@ -7,6 +7,7 @@ import os
 app = dash.Dash(
     __name__,
     use_pages=True,
+    pages_folder="pages",
     external_stylesheets=[
         dbc.themes.LUX,
         "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap",
