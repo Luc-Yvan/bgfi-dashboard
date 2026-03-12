@@ -7515,1052 +7515,145 @@ a.anchor-link {
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h1 id="RAPPORT-DE-POSITIONNEMENT-%E2%80%94-BGFI-BANK-S%C3%89N%C3%89GAL">RAPPORT DE POSITIONNEMENT — BGFI BANK SÉNÉGAL<a class="anchor-link" href="#RAPPORT-DE-POSITIONNEMENT-%E2%80%94-BGFI-BANK-S%C3%89N%C3%89GAL">¶</a></h1><h3 id="Analyse-Concurrentielle-du-Secteur-Bancaire-S%C3%A9n%C3%A9galais-%C2%B7-2015%E2%80%932020">Analyse Concurrentielle du Secteur Bancaire Sénégalais · 2015–2020<a class="anchor-link" href="#Analyse-Concurrentielle-du-Secteur-Bancaire-S%C3%A9n%C3%A9galais-%C2%B7-2015%E2%80%932020">¶</a></h3>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 0 — IMPORTS GLOBAUX + CHEMINS + FONCTIONS UTILITAIRES</span>
-<span class="c1"># ⚠️ Exécuter EN PREMIER. Toutes les dépendances sont ici.</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
-<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">'Agg'</span><span class="p">)</span>   <span class="c1"># OBLIGATOIRE pour les serveurs / nbconvert</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.image</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpimg</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpatches</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mticker</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span><span class="p">,</span> <span class="n">Image</span>
-
-<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">'ignore'</span><span class="p">)</span>
-
-<span class="c1"># ── Paramètres globaux ────────────────────────────────────────────────────</span>
-<span class="n">TARGET_BANK</span>  <span class="o">=</span> <span class="s1">'BGFI'</span>
-<span class="n">ANNEE_DEBUT</span>  <span class="o">=</span> <span class="mi">2015</span>
-<span class="n">ANNEE_FIN</span>    <span class="o">=</span> <span class="mi">2020</span>
-
-<span class="c1"># ── Palette BGFI Bank officielle ─────────────────────────────────────────</span>
-<span class="n">C_BLUE</span>       <span class="o">=</span> <span class="s1">'#004a99'</span>   <span class="c1"># Bleu BGFI institutionnel (primaire)</span>
-<span class="n">C_GOLD</span>       <span class="o">=</span> <span class="s1">'#E8A020'</span>   <span class="c1"># Or BGFI (couleur secondaire officielle)</span>
-<span class="n">C_GOLD_LIGHT</span> <span class="o">=</span> <span class="s1">'#F5CF7E'</span>   <span class="c1"># Or clair / dégradé léger</span>
-<span class="n">C_BLUE_LIGHT</span> <span class="o">=</span> <span class="s1">'#6699CC'</span>   <span class="c1"># Bleu clair pour barres secondaires</span>
-<span class="n">C_BGFI_HI</span>   <span class="o">=</span> <span class="s1">'#C9A227'</span>   <span class="c1"># Surbrillance BGFI = or</span>
-<span class="n">C_AUTRE</span>      <span class="o">=</span> <span class="s1">'#B0C4DE'</span>   <span class="c1"># Bleu pâle pour autres banques (contraste)</span>
-<span class="n">C_GRIS</span>       <span class="o">=</span> <span class="s1">'#808080'</span>   <span class="c1"># Gris source</span>
-<span class="n">C_BANDEAU</span>    <span class="o">=</span> <span class="s1">'#003087'</span>   <span class="c1"># Bleu foncé bandeau titre</span>
-
-<span class="c1"># ── Chemins ────────────────────────────────────────────────────────────────</span>
-<span class="c1"># ⚠️ NE PAS MODIFIER — Chemins validés en local</span>
-<span class="n">path_data</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"C:\Users\user\Documents\Data Ingenieur2\Projet_banque\Data\BASE_SENEGAL2_COMPLETE.xlsx"</span>
-<span class="n">path_logo</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"C:\Users\user\Documents\Data Ingenieur2\Projet_banque\Data\logo_bgfi.jfif"</span>
-
-<span class="c1"># ── Fonctions utilitaires ──────────────────────────────────────────────────</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">calcul_tcam</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Taux de Croissance Annuel Moyen."""</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">v0</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">v0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mf">0.0</span>
-        <span class="k">return</span> <span class="nb">round</span><span class="p">(((</span><span class="n">v1</span> <span class="o">/</span> <span class="n">v0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">0.0</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">style_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Style épuré commun à tous les graphiques."""</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'top'</span><span class="p">,</span> <span class="s1">'right'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">'left'</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'#dddddd'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">'bottom'</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'#dddddd'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">colors</span><span class="o">=</span><span class="s1">'#444444'</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="c1"># ── LOGO : placement cohérent sur TOUTES les pages ─────────────────────────</span>
-<span class="c1"># Le logo est placé en BAS À DROITE, HORS de la zone graphique.</span>
-<span class="c1"># La figure est systématiquement ajustée pour laisser de la place (rect).</span>
-<span class="n">LOGO_AX_RECT</span>  <span class="o">=</span> <span class="p">[</span><span class="mf">0.830</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">,</span> <span class="mf">0.155</span><span class="p">,</span> <span class="mf">0.085</span><span class="p">]</span>  <span class="c1"># bas-droite, sous la zone graphique</span>
-<span class="n">LAYOUT_RECT</span>   <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span>    <span class="mf">0.13</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span>   <span class="mf">0.94</span><span class="p">]</span>    <span class="c1"># laisse 13% en bas pour logo + source</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Incruste le logo BGFI en bas à droite, hors des graphiques, taille fixe."""</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">logo</span> <span class="o">=</span> <span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path_logo</span><span class="p">)</span>
-        <span class="n">ax_logo</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span><span class="n">LOGO_AX_RECT</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s1">'SE'</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-        <span class="n">ax_logo</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">logo</span><span class="p">)</span>
-        <span class="n">ax_logo</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">'off'</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"⚠️ Logo non chargé : </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">get_logo_base64</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">"""Encode le logo en base64 pour la page de garde HTML."""</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_logo</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">''</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">nom_fichier</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Sauvegarde la figure en PNG et l'affiche dans le HTML généré."""</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">nom_fichier</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-    <span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">nom_fichier</span><span class="p">))</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 1 — CHARGEMENT DES DONNÉES</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_data</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">'openpyxl'</span><span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-   
-<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'❌ Erreur de lecture : </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-
-
-
-<span class="c1"># Tables de référence</span>
-<span class="n">df_2020</span>          <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_FIN</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">total_bilan_2020</span> <span class="o">=</span> <span class="n">df_2020</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="n">GROUPE_BGFI</span>      <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]</span> <span class="o">==</span> <span class="n">TARGET_BANK</span><span class="p">][</span><span class="s1">'Goupe_Bancaire'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="Page-de-Garde">Page de Garde<a class="anchor-link" href="#Page-de-Garde">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 2 — PAGE DE GARDE (logo intégré en base64, taille fixe)</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">logo_base64</span> <span class="o">=</span> <span class="n">get_logo_base64</span><span class="p">()</span>
-<span class="n">logo_src</span>    <span class="o">=</span> <span class="sa">f</span><span class="s1">'data:image/jpeg;base64,</span><span class="si">{</span><span class="n">logo_base64</span><span class="si">}</span><span class="s1">'</span> <span class="k">if</span> <span class="n">logo_base64</span> <span class="k">else</span> <span class="s1">''</span>
-
-<span class="n">html_intro</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
-<span class="s2">&lt;div style="font-family: 'Arial', sans-serif; background-color: white;</span>
-<span class="s2">            padding: 0; border: 1px solid #eee; min-height: 500px;"&gt;</span>
-
-<span class="s2">    &lt;!-- En-tête bleu BGFI --&gt;</span>
-<span class="s2">    &lt;div style="background-color: </span><span class="si">{</span><span class="n">C_BLUE</span><span class="si">}</span><span class="s2">; padding: 40px 50px 30px; display: flex;</span>
-<span class="s2">                justify-content: space-between; align-items: center;"&gt;</span>
-<span class="s2">        &lt;div&gt;</span>
-<span class="s2">            &lt;h1 style="color: white; font-weight: 800; font-size: 34px; margin: 0;"&gt;</span>
-<span class="s2">                STRATÉGIE BGFI BANK</span>
-<span class="s2">            &lt;/h1&gt;</span>
-<span class="s2">            &lt;p style="color: </span><span class="si">{</span><span class="n">C_GOLD_LIGHT</span><span class="si">}</span><span class="s2">; font-size: 16px; margin-top: 8px;"&gt;</span>
-<span class="s2">                Analyse comparative et dynamique de croissance · 2015-2020</span>
-<span class="s2">            &lt;/p&gt;</span>
-<span class="s2">        &lt;/div&gt;</span>
-<span class="s2">        </span><span class="si">{</span><span class="s1">'&lt;img src="'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">logo_src</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">'" alt="Logo BGFI" style="height: 80px;"&gt;'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">logo_src</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">''</span><span class="si">}</span>
-<span class="s2">    &lt;/div&gt;</span>
-
-<span class="s2">    &lt;!-- Bandeau or --&gt;</span>
-<span class="s2">    &lt;div style="background-color: </span><span class="si">{</span><span class="n">C_GOLD</span><span class="si">}</span><span class="s2">; height: 5px;"&gt;&lt;/div&gt;</span>
-
-<span class="s2">    &lt;!-- Corps --&gt;</span>
-<span class="s2">    &lt;div style="padding: 40px 60px; color: #333; line-height: 1.8;"&gt;</span>
-
-<span class="s2">        &lt;div style="margin-bottom: 28px; display: flex; align-items: flex-start;"&gt;</span>
-<span class="s2">            &lt;span style="color: </span><span class="si">{</span><span class="n">C_GOLD</span><span class="si">}</span><span class="s2">; font-size: 24px; margin-right: 15px;"&gt;●&lt;/span&gt;</span>
-<span class="s2">            &lt;span&gt;&lt;b style="color: </span><span class="si">{</span><span class="n">C_BLUE</span><span class="si">}</span><span class="s2">; font-size: 18px;"&gt;Contexte :&lt;/b&gt;&lt;br&gt;</span>
-<span class="s2">            Étude approfondie des parts de marché et de la rentabilité de</span>
-<span class="s2">            &lt;b&gt;BGFI Bank Sénégal&lt;/b&gt; face à ses principaux concurrents du secteur.&lt;/span&gt;</span>
-<span class="s2">        &lt;/div&gt;</span>
-
-<span class="s2">        &lt;div style="margin-bottom: 28px; display: flex; align-items: flex-start;"&gt;</span>
-<span class="s2">            &lt;span style="color: </span><span class="si">{</span><span class="n">C_GOLD</span><span class="si">}</span><span class="s2">; font-size: 24px; margin-right: 15px;"&gt;●&lt;/span&gt;</span>
-<span class="s2">            &lt;span&gt;&lt;b style="color: </span><span class="si">{</span><span class="n">C_BLUE</span><span class="si">}</span><span class="s2">; font-size: 18px;"&gt;Méthodologie :&lt;/b&gt;&lt;br&gt;</span>
-<span class="s2">            Analyse basée sur les données financières consolidées 2015-2020,</span>
-<span class="s2">            utilisant les calculs de TCAM et de ratios de productivité.&lt;/span&gt;</span>
-<span class="s2">        &lt;/div&gt;</span>
-
-<span class="s2">        &lt;div style="margin-bottom: 28px; display: flex; align-items: flex-start;"&gt;</span>
-<span class="s2">            &lt;span style="color: </span><span class="si">{</span><span class="n">C_GOLD</span><span class="si">}</span><span class="s2">; font-size: 24px; margin-right: 15px;"&gt;●&lt;/span&gt;</span>
-<span class="s2">            &lt;span&gt;&lt;b style="color: </span><span class="si">{</span><span class="n">C_BLUE</span><span class="si">}</span><span class="s2">; font-size: 18px;"&gt;Objectif :&lt;/b&gt;&lt;br&gt;</span>
-<span class="s2">            Mettre en lumière la montée en puissance de la banque sur les segments</span>
-<span class="s2">            prioritaires (Total Bilan, Emplois, Ressources).&lt;/span&gt;</span>
-<span class="s2">        &lt;/div&gt;</span>
-
-<span class="s2">    &lt;/div&gt;</span>
-
-<span class="s2">    &lt;!-- Pied de page --&gt;</span>
-<span class="s2">    &lt;div style="background-color: #f9f7f0; border-top: 3px solid </span><span class="si">{</span><span class="n">C_GOLD</span><span class="si">}</span><span class="s2">;</span>
-<span class="s2">                padding: 20px 60px; text-align: right;"&gt;</span>
-<span class="s2">        &lt;span style="color: </span><span class="si">{</span><span class="n">C_BLUE</span><span class="si">}</span><span class="s2">; font-size: 13px; font-style: italic;"&gt;</span>
-<span class="s2">            Source : Commission Bancaire · APBEF-Sénégal · Analyses Performances Group</span>
-<span class="s2">        &lt;/span&gt;</span>
-<span class="s2">    &lt;/div&gt;</span>
-
-<span class="s2">&lt;/div&gt;</span>
-<span class="s2">"""</span>
-
-<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">html_intro</span><span class="p">))</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-1-Total-Bilan-des-Banques-%E2%80%94-2020">1-1 Total Bilan des Banques — 2020<a class="anchor-link" href="#1-1-Total-Bilan-des-Banques-%E2%80%94-2020">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 3 — TOTAL BILAN DES BANQUES 2020</span>
-<span class="c1"># Couleurs BGFI : barres bleues, BGFI en or</span>
-<span class="c1"># Logo en bas à droite, hors graphique</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">d_plot</span>     <span class="o">=</span> <span class="n">df_2020</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'BILAN'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">nb_banques</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d_plot</span><span class="p">)</span>
-<span class="n">total_mds</span>  <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">total_bilan_2020</span> <span class="o">/</span> <span class="mi">1_000</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">couleurs</span>   <span class="o">=</span> <span class="p">[</span><span class="n">C_GOLD</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="n">TARGET_BANK</span> <span class="k">else</span> <span class="n">C_BLUE</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">d_plot</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]]</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="n">bars</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">d_plot</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">],</span> <span class="n">d_plot</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">couleurs</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
-
-<span class="c1"># Valeurs au bout des barres</span>
-<span class="n">max_val</span> <span class="o">=</span> <span class="n">d_plot</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">bars</span><span class="p">:</span>
-    <span class="n">width</span> <span class="o">=</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="p">(</span><span class="n">max_val</span> <span class="o">*</span> <span class="mf">0.01</span><span class="p">),</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">width</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#333333'</span><span class="p">)</span>
-
-<span class="c1"># BGFI en gras / or</span>
-<span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="o">==</span> <span class="n">TARGET_BANK</span><span class="p">:</span>
-        <span class="n">label</span><span class="o">.</span><span class="n">set_fontweight</span><span class="p">(</span><span class="s1">'bold'</span><span class="p">)</span>
-        <span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">C_GOLD</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s1">'Le secteur Bancaire Sénégalais compte </span><span class="si">{</span><span class="n">nb_banques</span><span class="si">}</span><span class="s1"> banques représentant un</span><span class="se">\n</span><span class="s1">'</span>
-    <span class="sa">f</span><span class="s1">'total bilan de </span><span class="si">{</span><span class="n">total_mds</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1"> milliards de FCFA soit près de 60% du PIB national.'</span><span class="p">,</span>
-    <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.97</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Total Bilan des Banques, </span><span class="si">{</span><span class="n">ANNEE_FIN</span><span class="si">}</span><span class="s1"> (millions FCFA)'</span><span class="p">,</span>
-             <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#555555'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'top'</span><span class="p">,</span> <span class="s1">'right'</span><span class="p">,</span> <span class="s1">'bottom'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-<span class="c1"># Légende couleurs</span>
-<span class="n">leg</span> <span class="o">=</span> <span class="p">[</span><span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Autres banques'</span><span class="p">),</span>
-       <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> Bank'</span><span class="p">)]</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">leg</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">'lower right'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-<span class="c1"># Ligne dorée source</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'Source: Commission Bancaire, APBEF-Sénégal,Power By Luc-Yvan'</span><span class="p">,</span>
-         <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="n">LAYOUT_RECT</span><span class="p">)</span>
-<span class="n">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-<span class="n">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">'temp_graph_1.png'</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-2-Un-March%C3%A9-en-Croissance-%E2%80%94-%C3%89volution-2015%E2%80%932020">1-2 Un Marché en Croissance — Évolution 2015–2020<a class="anchor-link" href="#1-2-Un-March%C3%A9-en-Croissance-%E2%80%94-%C3%89volution-2015%E2%80%932020">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 4 — ÉVOLUTION DU MARCHÉ (4 indicateurs)</span>
-<span class="c1"># Couleurs BGFI : bleu + or pour TCAM, source en bas</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">evolution_marche</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'ANNEE'</span><span class="p">)[[</span><span class="s1">'BILAN'</span><span class="p">,</span> <span class="s1">'EMPLOI'</span><span class="p">,</span> <span class="s1">'RESSOURCES'</span><span class="p">,</span> <span class="s1">'COMPTE'</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-
-<span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="s1">'BILAN'</span><span class="p">,</span>      <span class="s1">'Total Bilan'</span><span class="p">,</span>          <span class="n">C_BLUE</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">'EMPLOI'</span><span class="p">,</span>     <span class="s1">'Emplois (Crédits)'</span><span class="p">,</span>     <span class="n">C_BLUE</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">'RESSOURCES'</span><span class="p">,</span> <span class="s1">'Ressources (Dépôts)'</span><span class="p">,</span>   <span class="n">C_BLUE</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">'COMPTE'</span><span class="p">,</span>     <span class="s1">'Nombre de Comptes'</span><span class="p">,</span>     <span class="n">C_BLUE</span><span class="p">),</span>
-<span class="p">]</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">metrics</span><span class="p">):</span>
-    <span class="n">ax</span>   <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-    <span class="n">bars</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">evolution_marche</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span>
-                  <span class="n">evolution_marche</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
-
-    <span class="n">v0</span> <span class="o">=</span> <span class="n">evolution_marche</span><span class="p">[</span><span class="n">evolution_marche</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_DEBUT</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">v1</span> <span class="o">=</span> <span class="n">evolution_marche</span><span class="p">[</span><span class="n">evolution_marche</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_FIN</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">t</span>  <span class="o">=</span> <span class="n">calcul_tcam</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">ANNEE_FIN</span> <span class="o">-</span> <span class="n">ANNEE_DEBUT</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">bars</span><span class="p">:</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_x</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">h</span> <span class="o">+</span> <span class="n">h</span> <span class="o">*</span> <span class="mf">0.01</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">h</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'bottom'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-
-    <span class="c1"># Annotation TCAM en or</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.98</span><span class="p">,</span> <span class="mf">0.96</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'TCAM : +</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s1">%'</span><span class="p">,</span>
-            <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'right'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span>
-            <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span>
-            <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s1">'round,pad=0.3'</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span>
-                      <span class="n">edgecolor</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">))</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'top'</span><span class="p">,</span> <span class="s1">'right'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'left'</span><span class="p">,</span><span class="s1">'bottom'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'#dddddd'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.97</span><span class="p">,</span>
-    <span class="s1">'Un marché bancaire de taille moyenne, compétitif et en croissance soutenue.'</span><span class="p">,</span>
-    <span class="n">ha</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'Source: Commission Bancaire, APBEF-Sénégal,Power By Luc-Yvan'</span><span class="p">,</span>
-         <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="n">LAYOUT_RECT</span><span class="p">)</span>
-<span class="n">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-<span class="n">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">'temp_graph_2.png'</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-3-%C3%89volution-de-BGFI-Bank-%E2%80%94-Indicateurs-Bilanciels">1-3 Évolution de BGFI Bank — Indicateurs Bilanciels<a class="anchor-link" href="#1-3-%C3%89volution-de-BGFI-Bank-%E2%80%94-Indicateurs-Bilanciels">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 5 — ÉVOLUTION DE BGFI BANK</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">df_bgfi_evol</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]</span> <span class="o">==</span> <span class="n">TARGET_BANK</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'ANNEE'</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="c1"># Graphique A : Évolution du Total Bilan (Barres bleues)</span>
-<span class="n">bars_bilan</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">df_bgfi_evol</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">df_bgfi_evol</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">],</span>
-                     <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">df_bgfi_evol</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">]):</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="o">+</span> <span class="p">(</span><span class="n">val</span> <span class="o">*</span> <span class="mf">0.02</span><span class="p">),</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-             <span class="n">ha</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-
-<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Évolution du Total Bilan — </span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span>
-              <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Millions FCFA'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">)</span>
-<span class="n">style_ax</span><span class="p">(</span><span class="n">ax1</span><span class="p">)</span>
-
-<span class="c1"># Graphique B : Emplois vs Ressources (Lignes)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df_bgfi_evol</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">df_bgfi_evol</span><span class="p">[</span><span class="s1">'EMPLOI'</span><span class="p">],</span>
-         <span class="n">marker</span><span class="o">=</span><span class="s1">'o'</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span>
-         <span class="n">label</span><span class="o">=</span><span class="s1">'Emplois (Crédits)'</span><span class="p">)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df_bgfi_evol</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">df_bgfi_evol</span><span class="p">[</span><span class="s1">'RESSOURCES'</span><span class="p">],</span>
-         <span class="n">marker</span><span class="o">=</span><span class="s1">'s'</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span>
-         <span class="n">label</span><span class="o">=</span><span class="s1">'Ressources (Dépôts)'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">)</span>
-
-<span class="n">last_emp</span> <span class="o">=</span> <span class="n">df_bgfi_evol</span><span class="p">[</span><span class="s1">'EMPLOI'</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">last_res</span> <span class="o">=</span> <span class="n">df_bgfi_evol</span><span class="p">[</span><span class="s1">'RESSOURCES'</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">last_emp</span><span class="p">,</span> <span class="sa">f</span><span class="s1">' </span><span class="si">{</span><span class="n">last_emp</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">last_res</span><span class="p">,</span> <span class="sa">f</span><span class="s1">' </span><span class="si">{</span><span class="n">last_res</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-
-<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Dynamique Emplois vs Ressources — </span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span>
-              <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
-<span class="n">style_ax</span><span class="p">(</span><span class="n">ax2</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Trajectoire de Croissance Interne — </span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> Bank Sénégal'</span><span class="p">,</span>
-             <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.97</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'Source: Commission Bancaire, APBEF-Sénégal,Power By Luc-Yvan'</span><span class="p">,</span>
-         <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="n">LAYOUT_RECT</span><span class="p">)</span>
-<span class="n">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-<span class="n">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">'temp_graph_evol_bgfi.png'</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-4-Positionnement-Strat%C3%A9gique-%E2%80%94-BGFI-vs-Toutes-les-Banques">1-4 Positionnement Stratégique — BGFI vs Toutes les Banques<a class="anchor-link" href="#1-4-Positionnement-Strat%C3%A9gique-%E2%80%94-BGFI-vs-Toutes-les-Banques">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 6 — POSITIONNEMENT BGFI vs TOUTES LES BANQUES</span>
-<span class="c1"># BGFI = point or (C_GOLD), autres = bleu clair</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">metrics</span>   <span class="o">=</span> <span class="p">[</span><span class="s1">'BILAN'</span><span class="p">,</span> <span class="s1">'EMPLOI'</span><span class="p">,</span> <span class="s1">'RESSOURCES'</span><span class="p">,</span> <span class="s1">'COMPTE'</span><span class="p">]</span>
-<span class="n">titles</span>    <span class="o">=</span> <span class="p">[</span><span class="s1">'Total Bilan'</span><span class="p">,</span> <span class="s1">'Emplois (Crédits)'</span><span class="p">,</span> <span class="s1">'Ressources (Dépôts)'</span><span class="p">,</span> <span class="s1">'Nombre de Comptes'</span><span class="p">]</span>
-<span class="n">all_banks</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">metrics</span><span class="p">):</span>
-    <span class="n">ax</span>           <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-    <span class="n">total_m_2020</span> <span class="o">=</span> <span class="n">df_2020</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">all_banks</span><span class="p">:</span>
-        <span class="n">df_b</span>    <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'ANNEE'</span><span class="p">)</span>
-        <span class="n">v_start</span> <span class="o">=</span> <span class="n">df_b</span><span class="p">[</span><span class="n">df_b</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_DEBUT</span><span class="p">][</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">v_end</span>   <span class="o">=</span> <span class="n">df_b</span><span class="p">[</span><span class="n">df_b</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_FIN</span><span class="p">][</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v_start</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v_end</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">ms</span>      <span class="o">=</span> <span class="p">(</span><span class="n">v_end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_m_2020</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-            <span class="n">growth</span>  <span class="o">=</span> <span class="n">calcul_tcam</span><span class="p">(</span><span class="n">v_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v_end</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
-            <span class="n">is_bgfi</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">TARGET_BANK</span><span class="p">)</span>
-
-            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">growth</span><span class="p">,</span>
-                       <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="n">C_BLUE</span><span class="p">,</span>
-                       <span class="n">s</span><span class="o">=</span><span class="mi">350</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="mi">100</span><span class="p">,</span>
-                       <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
-                       <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="mf">0.7</span><span class="p">,</span>
-                       <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="mi">3</span><span class="p">)</span>
-
-            <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">growth</span><span class="p">),</span>
-                        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">textcoords</span><span class="o">=</span><span class="s1">'offset points'</span><span class="p">,</span>
-                        <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-                        <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="s1">'normal'</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="s1">'#666666'</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#cccccc'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Positionnement : </span><span class="si">{</span><span class="n">titles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span>
-                 <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Part de Marché 2020 (%)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'TCAM 2015-2020 (%)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'top'</span><span class="p">,</span> <span class="s1">'right'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'left'</span><span class="p">,</span><span class="s1">'bottom'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'#dddddd'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">':'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
-
-<span class="c1"># Légende commune</span>
-<span class="n">leg</span> <span class="o">=</span> <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">c</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> Bank'</span><span class="p">),</span>
-       <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">c</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>  <span class="n">label</span><span class="o">=</span><span class="s1">'Autres banques'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)]</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">leg</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">'lower center'</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-           <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s1">'Cartographie Concurrentielle : </span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> Bank vs Secteur Bancaire Sénégalais'</span><span class="p">,</span>
-    <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.98</span>
-<span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'Source: Commission Bancaire, APBEF-Sénégal,Power By Luc-Yvan'</span><span class="p">,</span>
-         <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="n">LAYOUT_RECT</span><span class="p">)</span>
-<span class="n">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-<span class="n">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">'pos_complet_bgfi_bleu.png'</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-5-Positionnement-des-Groupes-Bancaires">1-5 Positionnement des Groupes Bancaires<a class="anchor-link" href="#1-5-Positionnement-des-Groupes-Bancaires">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 7 — POSITIONNEMENT DES GROUPES BANCAIRES</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">df_gp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">'Goupe_Bancaire'</span><span class="p">,</span> <span class="s1">'ANNEE'</span><span class="p">])[[</span><span class="s1">'BILAN'</span><span class="p">,</span> <span class="s1">'EMPLOI'</span><span class="p">,</span> <span class="s1">'RESSOURCES'</span><span class="p">,</span> <span class="s1">'COMPTE'</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">scatter_groupes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">titre</span><span class="p">,</span> <span class="n">metric</span><span class="p">):</span>
-    <span class="n">total_m_2020</span> <span class="o">=</span> <span class="n">df_gp</span><span class="p">[</span><span class="n">df_gp</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_FIN</span><span class="p">][</span><span class="n">metric</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-    <span class="n">groupes_uniq</span> <span class="o">=</span> <span class="n">df_gp</span><span class="p">[</span><span class="s1">'Goupe_Bancaire'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="n">gp</span> <span class="ow">in</span> <span class="n">groupes_uniq</span><span class="p">:</span>
-        <span class="n">d_g</span>     <span class="o">=</span> <span class="n">df_gp</span><span class="p">[</span><span class="n">df_gp</span><span class="p">[</span><span class="s1">'Goupe_Bancaire'</span><span class="p">]</span> <span class="o">==</span> <span class="n">gp</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'ANNEE'</span><span class="p">)</span>
-        <span class="n">v_start</span> <span class="o">=</span> <span class="n">d_g</span><span class="p">[</span><span class="n">d_g</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_DEBUT</span><span class="p">][</span><span class="n">metric</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">v_end</span>   <span class="o">=</span> <span class="n">d_g</span><span class="p">[</span><span class="n">d_g</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_FIN</span><span class="p">][</span><span class="n">metric</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v_start</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v_end</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">ms</span>         <span class="o">=</span> <span class="p">(</span><span class="n">v_end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_m_2020</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-            <span class="n">growth</span>     <span class="o">=</span> <span class="n">calcul_tcam</span><span class="p">(</span><span class="n">v_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v_end</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
-            <span class="n">is_bgfi_gp</span> <span class="o">=</span> <span class="p">(</span><span class="n">gp</span> <span class="o">==</span> <span class="n">GROUPE_BGFI</span><span class="p">)</span>
-
-            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">growth</span><span class="p">,</span>
-                       <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span> <span class="k">if</span> <span class="n">is_bgfi_gp</span> <span class="k">else</span> <span class="n">C_BLUE</span><span class="p">,</span>
-                       <span class="n">s</span><span class="o">=</span><span class="mi">500</span> <span class="k">if</span> <span class="n">is_bgfi_gp</span> <span class="k">else</span> <span class="mi">200</span><span class="p">,</span>
-                       <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
-                       <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span> <span class="k">if</span> <span class="n">is_bgfi_gp</span> <span class="k">else</span> <span class="mi">3</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">ms</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">is_bgfi_gp</span><span class="p">:</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">f</span><span class="s1">' </span><span class="si">{</span><span class="n">gp</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">growth</span><span class="p">),</span>
-                            <span class="n">fontsize</span><span class="o">=</span><span class="mf">8.5</span><span class="p">,</span>
-                            <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span> <span class="k">if</span> <span class="n">is_bgfi_gp</span> <span class="k">else</span> <span class="s1">'normal'</span><span class="p">,</span>
-                            <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span> <span class="k">if</span> <span class="n">is_bgfi_gp</span> <span class="k">else</span> <span class="s1">'#444444'</span><span class="p">,</span>
-                            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">textcoords</span><span class="o">=</span><span class="s1">'offset points'</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">titre</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Part de Marché du Groupe (%)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'TCAM (%)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#cccccc'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'top'</span><span class="p">,</span> <span class="s1">'right'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'left'</span><span class="p">,</span><span class="s1">'bottom'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'#dddddd'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">':'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="n">scatter_groupes</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">'Sur le nombre de comptes'</span><span class="p">,</span> <span class="s1">'COMPTE'</span><span class="p">)</span>
-<span class="n">scatter_groupes</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">'Sur le total bilan'</span><span class="p">,</span>       <span class="s1">'BILAN'</span><span class="p">)</span>
-<span class="n">scatter_groupes</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">'Sur les ressources'</span><span class="p">,</span>       <span class="s1">'RESSOURCES'</span><span class="p">)</span>
-<span class="n">scatter_groupes</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">'Sur les emplois'</span><span class="p">,</span>          <span class="s1">'EMPLOI'</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span>
-    <span class="sa">f</span><span class="s1">'Positionnement des groupes bancaires — Marché Sénégalais'</span><span class="p">,</span>
-    <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-
-<span class="c1"># Bandeau bleu foncé</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.93</span><span class="p">,</span>
-    <span class="sa">f</span><span class="s1">'Le </span><span class="si">{</span><span class="n">GROUPE_BGFI</span><span class="si">}</span><span class="s1"> présente la dynamique de croissance la plus forte'</span><span class="p">,</span>
-    <span class="n">ha</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span>
-    <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s1">'square,pad=0.5'</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">C_BANDEAU</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">))</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'Source: Commission Bancaire, APBEF-Sénégal,Power By Luc-Yvan'</span><span class="p">,</span>
-         <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="n">LAYOUT_RECT</span><span class="p">)</span>
-<span class="n">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-<span class="n">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">'pos_groupes_original.png'</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-6-Positionnement-de-BGFI-au-sein-de-son-Groupe">1-6 Positionnement de BGFI au sein de son Groupe<a class="anchor-link" href="#1-6-Positionnement-de-BGFI-au-sein-de-son-Groupe">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 8 — BGFI vs LES BANQUES DE SON GROUPE</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">df_groupe</span>      <span class="o">=</span> <span class="n">df_2020</span><span class="p">[</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'Goupe_Bancaire'</span><span class="p">]</span> <span class="o">==</span> <span class="n">GROUPE_BGFI</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">banques_groupe</span> <span class="o">=</span> <span class="n">df_groupe</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">scatter_bnk</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">titre</span><span class="p">,</span> <span class="n">metric</span><span class="p">):</span>
-    <span class="n">total_m</span> <span class="o">=</span> <span class="n">df_2020</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">banques_groupe</span><span class="p">:</span>
-        <span class="n">df_b</span>    <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">'ANNEE'</span><span class="p">)</span>
-        <span class="n">v_start</span> <span class="o">=</span> <span class="n">df_b</span><span class="p">[</span><span class="n">df_b</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_DEBUT</span><span class="p">][</span><span class="n">metric</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">v_end</span>   <span class="o">=</span> <span class="n">df_b</span><span class="p">[</span><span class="n">df_b</span><span class="p">[</span><span class="s1">'ANNEE'</span><span class="p">]</span> <span class="o">==</span> <span class="n">ANNEE_FIN</span><span class="p">][</span><span class="n">metric</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v_start</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v_end</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">ms</span>      <span class="o">=</span> <span class="p">(</span><span class="n">v_end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_m</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-            <span class="n">growth</span>  <span class="o">=</span> <span class="n">calcul_tcam</span><span class="p">(</span><span class="n">v_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v_end</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
-            <span class="n">is_bgfi</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">==</span> <span class="n">TARGET_BANK</span><span class="p">)</span>
-
-            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">growth</span><span class="p">,</span>
-                       <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="n">C_BLUE</span><span class="p">,</span>
-                       <span class="n">s</span><span class="o">=</span><span class="mi">400</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="mi">140</span><span class="p">,</span>
-                       <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
-                       <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="mi">3</span><span class="p">)</span>
-
-            <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">f</span><span class="s1">' </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">growth</span><span class="p">),</span>
-                        <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
-                        <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="s1">'normal'</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span> <span class="k">if</span> <span class="n">is_bgfi</span> <span class="k">else</span> <span class="s1">'#555555'</span><span class="p">,</span>
-                        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">textcoords</span><span class="o">=</span><span class="s1">'offset points'</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">titre</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Part de Marché (%)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'TCAM (%)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#cccccc'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">':'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'top'</span><span class="p">,</span> <span class="s1">'right'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'left'</span><span class="p">,</span><span class="s1">'bottom'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'#dddddd'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="n">scatter_bnk</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">'Sur le nombre de comptes'</span><span class="p">,</span> <span class="s1">'COMPTE'</span><span class="p">)</span>
-<span class="n">scatter_bnk</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">'Sur le total bilan'</span><span class="p">,</span>       <span class="s1">'BILAN'</span><span class="p">)</span>
-<span class="n">scatter_bnk</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">'Sur les ressources'</span><span class="p">,</span>       <span class="s1">'RESSOURCES'</span><span class="p">)</span>
-<span class="n">scatter_bnk</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">'Sur les emplois'</span><span class="p">,</span>          <span class="s1">'EMPLOI'</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span>
-    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> a une dynamique plus forte sur tous les indicateurs.'</span><span class="p">,</span>
-    <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.93</span><span class="p">,</span>
-    <span class="sa">f</span><span class="s1">'Positionnement de </span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> par rapport aux banques du </span><span class="si">{</span><span class="n">GROUPE_BGFI</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-    <span class="n">ha</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span>
-    <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s1">'square,pad=0.5'</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">C_BANDEAU</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">))</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'Source: Commission Bancaire, APBEF-Sénégal,Power By Luc-Yvan'</span><span class="p">,</span>
-         <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="n">LAYOUT_RECT</span><span class="p">)</span>
-<span class="n">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-<span class="n">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">'pos_groupe_original.png'</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-7-Productivit%C3%A9-Commerciale-%E2%80%94-BGFI-vs-March%C3%A9">1-7 Productivité Commerciale — BGFI vs Marché<a class="anchor-link" href="#1-7-Productivit%C3%A9-Commerciale-%E2%80%94-BGFI-vs-March%C3%A9">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 9 — PRODUCTIVITÉ BGFI VS MARCHÉ</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">row_bgfi</span> <span class="o">=</span> <span class="n">df_2020</span><span class="p">[</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]</span> <span class="o">==</span> <span class="n">TARGET_BANK</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="n">moy_empl_ag</span>  <span class="o">=</span> <span class="p">(</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'EMPLOI'</span><span class="p">]</span>     <span class="o">/</span> <span class="n">df_2020</span><span class="p">[</span><span class="s1">'AGENCE'</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">moy_ress_ag</span>  <span class="o">=</span> <span class="p">(</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'RESSOURCES'</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_2020</span><span class="p">[</span><span class="s1">'AGENCE'</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">moy_empl_eff</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'EMPLOI'</span><span class="p">]</span>     <span class="o">/</span> <span class="n">df_2020</span><span class="p">[</span><span class="s1">'EFFECTIF'</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">moy_ress_eff</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'RESSOURCES'</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_2020</span><span class="p">[</span><span class="s1">'EFFECTIF'</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="n">x</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">width</span> <span class="o">=</span> <span class="mf">0.35</span>
-
-<span class="c1"># Graphique A : Par Agence</span>
-<span class="n">bgfi_ag</span>   <span class="o">=</span> <span class="p">[</span><span class="n">row_bgfi</span><span class="p">[</span><span class="s1">'EMPLOI'</span><span class="p">]</span> <span class="o">/</span> <span class="n">row_bgfi</span><span class="p">[</span><span class="s1">'AGENCE'</span><span class="p">],</span> <span class="n">row_bgfi</span><span class="p">[</span><span class="s1">'RESSOURCES'</span><span class="p">]</span> <span class="o">/</span> <span class="n">row_bgfi</span><span class="p">[</span><span class="s1">'AGENCE'</span><span class="p">]]</span>
-<span class="n">marche_ag</span> <span class="o">=</span> <span class="p">[</span><span class="n">moy_empl_ag</span><span class="p">,</span> <span class="n">moy_ress_ag</span><span class="p">]</span>
-
-<span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">bgfi_ag</span><span class="p">,</span>   <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> Bank'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">)</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">marche_ag</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Moyenne Marché'</span><span class="p">,</span>      <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Productivité par Agence (M FCFA)'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">'Emplois / Agence'</span><span class="p">,</span> <span class="s1">'Ressources / Agence'</span><span class="p">])</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">style_ax</span><span class="p">(</span><span class="n">ax1</span><span class="p">)</span>
-
-<span class="c1"># Graphique B : Par Agent</span>
-<span class="n">bgfi_eff</span>   <span class="o">=</span> <span class="p">[</span><span class="n">row_bgfi</span><span class="p">[</span><span class="s1">'EMPLOI'</span><span class="p">]</span> <span class="o">/</span> <span class="n">row_bgfi</span><span class="p">[</span><span class="s1">'EFFECTIF'</span><span class="p">],</span> <span class="n">row_bgfi</span><span class="p">[</span><span class="s1">'RESSOURCES'</span><span class="p">]</span> <span class="o">/</span> <span class="n">row_bgfi</span><span class="p">[</span><span class="s1">'EFFECTIF'</span><span class="p">]]</span>
-<span class="n">marche_eff</span> <span class="o">=</span> <span class="p">[</span><span class="n">moy_empl_eff</span><span class="p">,</span> <span class="n">moy_ress_eff</span><span class="p">]</span>
-
-<span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">bgfi_eff</span><span class="p">,</span>   <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> Bank'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">marche_eff</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Moyenne Marché'</span><span class="p">,</span>      <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Productivité par Agent (M FCFA)'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">'Emplois / Agent'</span><span class="p">,</span> <span class="s1">'Ressources / Agent'</span><span class="p">])</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">style_ax</span><span class="p">(</span><span class="n">ax2</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Analyse de la Productivité : </span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> Bank vs Moyenne du Secteur'</span><span class="p">,</span>
-             <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.97</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'Source: Commission Bancaire, APBEF-Sénégal,Power By Luc-Yvan'</span><span class="p">,</span>
-         <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="n">LAYOUT_RECT</span><span class="p">)</span>
-<span class="n">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-<span class="n">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">'temp_graph_4.png'</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-8-Ranking-Productivit%C3%A9-%E2%80%94-Toutes-les-Banques">1-8 Ranking Productivité — Toutes les Banques<a class="anchor-link" href="#1-8-Ranking-Productivit%C3%A9-%E2%80%94-Toutes-les-Banques">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 10 — RANKING COMPLET PRODUCTIVITÉ</span>
-<span class="c1"># BGFI en or sur fond bleu, médiane en or</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">df_prod</span> <span class="o">=</span> <span class="n">df_2020</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">df_prod</span><span class="p">[</span><span class="s1">'EMP_AG'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_prod</span><span class="p">[</span><span class="s1">'EMPLOI'</span><span class="p">]</span>     <span class="o">/</span> <span class="n">df_prod</span><span class="p">[</span><span class="s1">'AGENCE'</span><span class="p">]</span>
-<span class="n">df_prod</span><span class="p">[</span><span class="s1">'RES_AG'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_prod</span><span class="p">[</span><span class="s1">'RESSOURCES'</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_prod</span><span class="p">[</span><span class="s1">'AGENCE'</span><span class="p">]</span>
-<span class="n">df_prod</span> <span class="o">=</span> <span class="n">df_prod</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">titre</span> <span class="ow">in</span> <span class="p">[</span>
-    <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="s1">'EMP_AG'</span><span class="p">,</span> <span class="s1">'Emplois / Agence (M FCFA)'</span><span class="p">),</span>
-    <span class="p">(</span><span class="n">ax2</span><span class="p">,</span> <span class="s1">'RES_AG'</span><span class="p">,</span> <span class="s1">'Ressources / Agence (M FCFA)'</span><span class="p">),</span>
-<span class="p">]:</span>
-    <span class="n">d</span>      <span class="o">=</span> <span class="n">df_prod</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">C_GOLD</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">TARGET_BANK</span> <span class="k">else</span> <span class="n">C_BLUE</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]]</span>
-    <span class="n">bars</span>   <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
-
-    <span class="c1"># Ligne médiane or</span>
-    <span class="n">mediane</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mediane</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'Médiane : </span><span class="si">{</span><span class="n">mediane</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">bars</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">+</span> <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">*</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">bar</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'#444444'</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">titre</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'top'</span><span class="p">,</span> <span class="s1">'right'</span><span class="p">,</span> <span class="s1">'bottom'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">'white'</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">TARGET_BANK</span> <span class="ow">in</span> <span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
-            <span class="n">label</span><span class="o">.</span><span class="n">set_fontweight</span><span class="p">(</span><span class="s1">'bold'</span><span class="p">)</span>
-            <span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">C_GOLD</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s1">'Efficacité du Réseau Physique — Classement Intégral du Marché'</span><span class="p">,</span>
-    <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.98</span>
-<span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'Source: Commission Bancaire, APBEF-Sénégal,Power By Luc-Yvan'</span><span class="p">,</span>
-         <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="n">LAYOUT_RECT</span><span class="p">)</span>
-<span class="n">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-<span class="n">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">'prod_all_banks_bgfi.png'</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-9-Solidit%C3%A9-et-Ma%C3%AEtrise-des-Risques">1-9 Solidité et Maîtrise des Risques<a class="anchor-link" href="#1-9-Solidit%C3%A9-et-Ma%C3%AEtrise-des-Risques">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 11 — RISQUE &amp; LEVIER FINANCIER</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">df_risk</span> <span class="o">=</span> <span class="n">df_2020</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">df_risk</span><span class="p">[</span><span class="s1">'RISQUE_RATIO'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_risk</span><span class="p">[</span><span class="s1">'COÛT.DU.RISQUE'</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_risk</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span>
-<span class="n">df_risk</span><span class="p">[</span><span class="s1">'LEVIER'</span><span class="p">]</span>       <span class="o">=</span> <span class="n">df_risk</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_risk</span><span class="p">[</span><span class="s1">'FONDS.PROPRE'</span><span class="p">]</span>
-<span class="n">df_risk</span> <span class="o">=</span> <span class="n">df_risk</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">titre</span><span class="p">,</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span>
-    <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="s1">'RISQUE_RATIO'</span><span class="p">,</span> <span class="s1">'Coût Net du Risque / Bilan (%)'</span><span class="p">,</span>       <span class="s1">'</span><span class="si">{:.2f}</span><span class="s1">%'</span><span class="p">),</span>
-    <span class="p">(</span><span class="n">ax2</span><span class="p">,</span> <span class="s1">'LEVIER'</span><span class="p">,</span>       <span class="s1">'Levier Financier (Bilan / Fonds Propres)'</span><span class="p">,</span> <span class="s1">'</span><span class="si">{:.1f}</span><span class="s1">x'</span><span class="p">),</span>
-<span class="p">]:</span>
-    <span class="n">d</span>      <span class="o">=</span> <span class="n">df_risk</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">C_GOLD</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">TARGET_BANK</span> <span class="k">else</span> <span class="n">C_BLUE</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]]</span>
-    <span class="n">bars</span>   <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
-
-    <span class="c1"># Médiane or</span>
-    <span class="n">mediane</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mediane</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GOLD</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'Médiane : </span><span class="si">{</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mediane</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">bars</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">+</span> <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">*</span><span class="mf">0.01</span><span class="p">,</span>
-                <span class="n">bar</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-                <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_width</span><span class="p">()),</span> <span class="n">va</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">titre</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">'top'</span><span class="p">,</span> <span class="s1">'right'</span><span class="p">,</span> <span class="s1">'bottom'</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">'white'</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">TARGET_BANK</span> <span class="ow">in</span> <span class="n">label</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
-            <span class="n">label</span><span class="o">.</span><span class="n">set_fontweight</span><span class="p">(</span><span class="s1">'bold'</span><span class="p">)</span>
-            <span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">C_GOLD</span><span class="p">)</span>
-            <span class="n">label</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s1">'Solidité et Maîtrise des Risques — Classement Complet du Secteur'</span><span class="p">,</span>
-    <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_BLUE</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.98</span>
-<span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="s1">'Source: Commission Bancaire, APBEF-Sénégal,Power By Luc-Yvan'</span><span class="p">,</span>
-         <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">C_GRIS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'italic'</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="n">LAYOUT_RECT</span><span class="p">)</span>
-<span class="n">ajouter_logo</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-<span class="n">sauvegarder_afficher</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">'risk_all_banks_bgfi.png'</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
 <h2 id="1-10-Tableau-de-Synth%C3%A8se-Strat%C3%A9gique">1-10 Tableau de Synthèse Stratégique<a class="anchor-link" href="#1-10-Tableau-de-Synth%C3%A8se-Strat%C3%A9gique">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># CELLULE 12 — SYNTHÈSE GLOBALE</span>
-<span class="c1"># ═══════════════════════════════════════════════════════════════════════════</span>
-
-<span class="n">row</span>          <span class="o">=</span> <span class="n">df_2020</span><span class="p">[</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'Sigle'</span><span class="p">]</span> <span class="o">==</span> <span class="n">TARGET_BANK</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">total_m_2020</span> <span class="o">=</span> <span class="n">df_2020</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-<span class="n">data_final</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">'Indicateur'</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s1">'Total Bilan'</span><span class="p">,</span>
-        <span class="s1">'Part de Marché'</span><span class="p">,</span>
-        <span class="s1">'ROE (Rentabilité)'</span><span class="p">,</span>
-        <span class="s1">'Coût du Risque'</span><span class="p">,</span>
-        <span class="s1">'Productivité / Agent'</span><span class="p">,</span>
-    <span class="p">],</span>
-    <span class="n">TARGET_BANK</span><span class="p">:</span> <span class="p">[</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">]</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> M"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total_m_2020</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'RESULTAT.NET'</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">row</span><span class="p">[</span><span class="s1">'FONDS.PROPRE'</span><span class="p">])</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'COÛT.DU.RISQUE'</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">row</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">])</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'EMPLOI'</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">row</span><span class="p">[</span><span class="s1">'EFFECTIF'</span><span class="p">]</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> M"</span><span class="p">,</span>
-    <span class="p">],</span>
-    <span class="s1">'Marché'</span><span class="p">:</span> <span class="p">[</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> M"</span><span class="p">,</span>
-        <span class="s1">'-'</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'RESULTAT.NET'</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'FONDS.PROPRE'</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'COÛT.DU.RISQUE'</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'BILAN'</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'EMPLOI'</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">df_2020</span><span class="p">[</span><span class="s1">'EFFECTIF'</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> M"</span><span class="p">,</span>
-    <span class="p">],</span>
-    <span class="s1">'Statut'</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s1">'⚡ Croissance forte'</span><span class="p">,</span>
-        <span class="s1">'⚠️ À renforcer'</span><span class="p">,</span>
-        <span class="s1">'✅ Performant'</span><span class="p">,</span>
-        <span class="s1">'✅ Maîtrisé'</span><span class="p">,</span>
-        <span class="s1">'✅ Efficace'</span><span class="p">,</span>
-    <span class="p">],</span>
-<span class="p">}</span>
-
-<span class="n">df_final</span>   <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_final</span><span class="p">)</span>
-<span class="n">html_table</span> <span class="o">=</span> <span class="n">df_final</span><span class="o">.</span><span class="n">to_html</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s1">'report-table'</span><span class="p">)</span>
-
-<span class="n">style</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
-<span class="s2">&lt;style&gt;</span>
-<span class="s2">    .report-table </span><span class="se">{{</span>
-<span class="s2">        font-family: Arial, sans-serif;</span>
-<span class="s2">        border-collapse: collapse;</span>
-<span class="s2">        width: 100%;</span>
-<span class="s2">        border-top: 4px solid </span><span class="si">{</span><span class="n">C_GOLD</span><span class="si">}</span><span class="s2">;</span>
-<span class="s2">    </span><span class="se">}}</span>
-<span class="s2">    .report-table td, .report-table th </span><span class="se">{{</span>
-<span class="s2">        border: 1px solid #ddd;</span>
-<span class="s2">        padding: 13px;</span>
-<span class="s2">        text-align: center;</span>
-<span class="s2">    </span><span class="se">}}</span>
-<span class="s2">    .report-table th </span><span class="se">{{</span>
-<span class="s2">        background-color: </span><span class="si">{</span><span class="n">C_BLUE</span><span class="si">}</span><span class="s2">;</span>
-<span class="s2">        color: white;</span>
-<span class="s2">        font-weight: bold;</span>
-<span class="s2">        font-size: 14px;</span>
-<span class="s2">        letter-spacing: 0.5px;</span>
-<span class="s2">    </span><span class="se">}}</span>
-<span class="s2">    .report-table tr:nth-child(even) </span><span class="se">{{</span><span class="s2"> background-color: #f6f8fc; </span><span class="se">}}</span>
-<span class="s2">    .report-table tr:hover </span><span class="se">{{</span><span class="s2"> background-color: #eef3fb; </span><span class="se">}}</span>
-<span class="s2">&lt;/style&gt;</span>
-<span class="s2">"""</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span> <span class="o">+</span> <span class="s1">'='</span><span class="o">*</span><span class="mi">55</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  TABLEAU DE SYNTHÈSE STRATÉGIQUE — </span><span class="si">{</span><span class="n">TARGET_BANK</span><span class="si">}</span><span class="s1"> BANK'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span><span class="o">*</span><span class="mi">55</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">style</span> <span class="o">+</span> <span class="n">html_table</span><span class="p">))</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput">
 </div>
 </main>
 </body>
