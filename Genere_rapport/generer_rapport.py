@@ -7,7 +7,7 @@ from Genere_rapport.htm_rapport import add_toc
 
 def notebook_to_html(
     notebook_path,
-    data_path="C:/Users/user/Documents/Data Ingenieur2/Projet_banque/Data/BASE_SENEGAL2.csv",
+    data_path="C:/Users/user/Documents/Data Ingenieur2/Projet_banque/Data/BASE_SENEGAL2_COMPLETE",
     output_filename="Rapport.html"
 ):  
     # Lecture du notebook

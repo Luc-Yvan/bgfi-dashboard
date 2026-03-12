@@ -18,7 +18,7 @@ except Exception as e:
 
 # --- LAYOUT ---
 layout = dbc.Container([
-    html.H2("🛡️ Dashboard Assurance", className="my-4 text-primary"),
+    html.H2(" Dashboard Assurance", className="my-4 text-primary"),
 
     # Filtre Type Assurance
     dbc.Row([
@@ -105,4 +105,4 @@ def update_assurance(type_selected):
         title="Corrélation : Âge vs Montant des Sinistres"
     )
 
-    return f"{total_primes:,.0f} €", f"{total_sinistres:,.0f} €", f"{ratio:.1f} %", fig_region, fig_repart, fig_scatter
+    return f"{total_primes:,.0f} FCFA", f"{total_sinistres:,.0f} FCFA", f"{ratio:.1f} %", fig_region, fig_repart, fig_scatter

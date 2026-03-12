@@ -742,7 +742,7 @@ landing_page = html.Div([
                             html.Div(className="sdm-card-header",
                                      style={"background":"linear-gradient(90deg,#1a8a5a,#2ec07e)"}),
                             html.Div(className="sdm-card-body", children=[
-                                html.Span("⚡", className="sdm-card-icon"),
+                                html.Span("", className="sdm-card-icon"),
                                 html.H3("Secteur Énergie", className="sdm-card-title"),
                                 html.P("Analyse du secteur énergétique sénégalais dans le "
                                        "contexte de la transition vers les énergies renouvelables "

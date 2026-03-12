@@ -20,7 +20,7 @@ except Exception as e:
 
 # --- LAYOUT ---
 layout = dbc.Container([
-    html.H2("⚡ Dashboard Énergie (Solaire)", className="my-4 text-warning"),
+    html.H2(" Dashboard Énergie (Solaire)", className="my-4 text-warning"),
 
     # Filtre Pays
     dbc.Row([

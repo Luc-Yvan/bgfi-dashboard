@@ -8,6 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import os, base64, io
 
+
 # --- IMPORT DU MOTEUR EXTERNE (Script 1) ---
 try:
     from utils.report_engine import generate_report
@@ -49,53 +50,8 @@ BASE_SLIM = {k: v for k, v in BASE_LAYOUT.items() if k not in ("margin", "legend
 # ═══════════════════════════════════════════════════════════════════════════
 # CHARGEMENT ET CALCULS
 # ═══════════════════════════════════════════════════════════════════════════
-def _find_data():
-    candidates = [
-        r"C:\Users\user\Documents\Data Ingenieur2\Projet_banque\Data\BASE_SENEGAL2.xlsx",
-        os.path.join(os.getcwd(), 'Data', 'BASE_SENEGAL2.xlsx'),
-    ]
-    for p in candidates:
-        if os.path.exists(p): return p
-    return None
 
-def load_data():
-    path = _find_data()
-    if not path: return pd.DataFrame()
-    df = pd.read_excel(path, engine="openpyxl")
-    df.columns = df.columns.str.strip()
-    rename_map = {}
-    for c in df.columns:
-        new = (c.replace("Û","U").replace("û","u").replace("Ô","O").replace("ô","o")
-                .replace("É","E").replace("é","e").replace("È","E").replace("è","e")
-                .replace("Î","I").replace("î","i").replace("Â","A").replace("â","a"))
-        if new != c: rename_map[c] = new
-    df.rename(columns=rename_map, inplace=True)
-
-    df["ROE"]          = (df["RESULTAT.NET"]         / df["FONDS.PROPRE"]) * 100
-    df["ROA"]          = (df["RESULTAT.NET"]         / df["BILAN"])        * 100
-    df["LEVIER"]       =  df["BILAN"]                / df["FONDS.PROPRE"]
-    df["RISQUE_PCT"]   = (df["COUT.DU.RISQUE"]       / df["BILAN"])        * 100
-    df["RATIO_TRANSF"] = (df["EMPLOI"]               / df["BILAN"])        * 100
-    df["PNB_BILAN"]    = (df["PRODUIT.NET.BANCAIRE"] / df["BILAN"])        * 100
-    df["EMP_AG"]       =  df["EMPLOI"]   / df["AGENCE"]
-    df["RES_AG"]       =  df["RESSOURCES"] / df["AGENCE"]
-    df["EMP_EFF"]      =  df["EMPLOI"]   / df["EFFECTIF"]
-    df["RES_EFF"]      =  df["RESSOURCES"] / df["EFFECTIF"]
-
-    for y in df["ANNEE"].unique():
-        m = df["ANNEE"] == y
-        tot = df.loc[m, "BILAN"].sum()
-        df.loc[m, "PART_MARCHE"] = (df.loc[m, "BILAN"] / tot) * 100
-
-    def tcam5(b):
-        d  = df[df["Sigle"] == b]
-        v0 = d[d["ANNEE"] == 2015]["BILAN"].values
-        v1 = d[d["ANNEE"] == 2020]["BILAN"].values
-        return round(((v1[0]/v0[0])**(1/5)-1)*100, 1) if len(v0) and len(v1) and v0[0]>0 else np.nan
-
-    df["TCAM_BILAN"] = df["Sigle"].map({b: tcam5(b) for b in df["Sigle"].unique()})
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    return df
+from utils.mongo_loader import load_data
 
 DF    = load_data()
 YEARS = sorted(DF["ANNEE"].unique().tolist()) if not DF.empty else []
@@ -103,7 +59,6 @@ BANKS = sorted(DF["Sigle"].unique().tolist()) if not DF.empty else []
 GROUPS= ["Tous"] + sorted(DF["Goupe_Bancaire"].unique().tolist()) if not DF.empty else []
 YEARS_FIN = sorted(DF.groupby("ANNEE")["RESULTAT.NET"].count().where(lambda x: x > 0).dropna().index.tolist()) if not DF.empty else []
 YEAR_FIN_DEFAULT = YEARS_FIN[-1] if YEARS_FIN else 2020
-
 KPI_OPTS = [
     {"label": " Total Bilan",    "value": "BILAN"},
     {"label": " Emplois",        "value": "EMPLOI"},
@@ -400,14 +355,14 @@ def cb_kpis(bank, year):
         tcam_str = f"+{((v1[0]/v0[0])**(1/5)-1)*100:.1f}%" if (len(v0) and len(v1) and v0[0]>0) else "N/A"
 
         items = [
-            ("Bilan",          fmt(r["BILAN"]),                      rank("BILAN"),        C_BLUE,  "💰"),
-            ("Part de Marché", fmt(r.get("PART_MARCHE",np.nan),"%"), "du marché total",    C_BLUE,  "📊"),
-            ("TCAM 15→20",     tcam_str,                             "croissance bilan",   C_GREEN, "📈"),
-            ("Fonds Propres",  fmt(r["FONDS.PROPRE"]),               rank("FONDS.PROPRE"), C_GOLD,  "🛡️"),
-            ("Emplois",        fmt(r["EMPLOI"]),                     rank("EMPLOI"),       C_BLUE,  "💼"),
-            ("Ressources",     fmt(r["RESSOURCES"]),                  rank("RESSOURCES"),  C_BLUE,  "🏦"),
-            ("Nb Comptes",     fmt(r.get("COMPTE",np.nan),"int"),    rank("COMPTE"),       C_GOLD,  "👥"),
-            ("Agences",        fmt(r.get("AGENCE",np.nan),"int"),    "réseau physique",    C_MUTED, "📍"),
+            ("Bilan",          fmt(r["BILAN"]),                      rank("BILAN"),        C_BLUE,  ""),
+            ("Part de Marché", fmt(r.get("PART_MARCHE",np.nan),"%"), "du marché total",    C_BLUE,  ""),
+            ("TCAM 15→20",     tcam_str,                             "croissance bilan",   C_GREEN, ""),
+            ("Fonds Propres",  fmt(r["FONDS.PROPRE"]),               rank("FONDS.PROPRE"), C_GOLD,  ""),
+            ("Emplois",        fmt(r["EMPLOI"]),                     rank("EMPLOI"),       C_BLUE,  ""),
+            ("Ressources",     fmt(r["RESSOURCES"]),                  rank("RESSOURCES"),  C_BLUE,  ""),
+            ("Nb Comptes",     fmt(r.get("COMPTE",np.nan),"int"),    rank("COMPTE"),       C_GOLD,  ""),
+            ("Agences",        fmt(r.get("AGENCE",np.nan),"int"),    "réseau physique",    C_MUTED, ""),
         ]
         return dbc.Row([
             dbc.Col(kpi_card(t,v,s,c,i), xs=6, sm=4, md=3, lg=3, xl=2, className="mb-2 ps-1 pe-1")
@@ -453,7 +408,7 @@ def cb_tabs(tab, bank, year, group, kpi, compare):
             dg = da.groupby("Goupe_Bancaire")[kpi].sum().reset_index()
             fig_pie = px.pie(dg, values=kpi, names="Goupe_Bancaire", hole=0.45,
                              color_discrete_sequence=[C_BLUE,C_GOLD,"#1a8a5a","#9b59b6"])
-            fig_pie.update_layout(**BASE_LAYOUT,
+            fig_pie.update_layout(**BASE_SLIM,
                 title=dict(text="Parts par groupe",font=dict(size=12)),
                 height=300, legend=dict(orientation="v",x=1,y=0.5))
             fig_pie.update_traces(textinfo="percent+label", textfont_size=10)
@@ -618,7 +573,7 @@ def cb_tabs(tab, bank, year, group, kpi, compare):
             else:
                 fig_radar.add_annotation(text="Données insuffisantes",xref="paper",yref="paper",
                     x=0.5,y=0.5,showarrow=False,font=dict(size=13,color=C_MUTED))
-            fig_radar.update_layout(**BASE_LAYOUT,
+            fig_radar.update_layout(**BASE_SLIM,
                 polar=dict(radialaxis=dict(visible=True,range=[0,100],tickfont=dict(size=7))),
                 title=dict(text=f"Profil — {bank} vs Marché ({dr_year})",font=dict(size=12)),
                 height=360, legend=dict(orientation="h",y=-0.12))
