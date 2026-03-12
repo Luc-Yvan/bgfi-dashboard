@@ -16,9 +16,11 @@ except ImportError:
     def generate_report():
         candidates = [
             r"C:\Users\user\Documents\Data Ingenieur2\Projet_banque\Data\rapport_bgfi.html",
+            os.path.join(os.path.dirname(__file__), "..", "Data", "rapport_bgfi.html"),
             os.path.join(os.getcwd(), "Data", "rapport_bgfi.html"),
         ]
         for p in candidates:
+            p = os.path.normpath(p)
             if os.path.exists(p):
                 with open(p, "r", encoding="utf-8") as f:
                     return f.read()
